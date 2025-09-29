@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">BBMyStatz</string>
+    <string name="title_home_calendario">Calendario</string>
+    <string name="title_partite">Partita</string>
+    <string name="title_statistiche">Statistiche</string>
+    <string name="tiri_liberi_a_segno">Tiri liberi a segno:</string>
+    <string name="risultato_partita">Risultato Partita</string>
+    <string name="tiri_liberi_mancati">Tiri Liberi mancati:</string>
+    <string name="id_partita">ID Partita:</string>
+    <string name="squadra_casa">Squadra di Casa:</string>
+    <string name="squadra_ospite">Squadra Ospite:</string>
+    <string name="punti_da_2_mancati">Punti da 2 mancati:</string>
+    <string name="punti_da_2_fatti">Punti da 2 a segno:</string>
+    <string name="punti_da_3_fatti">Punti da 3 a segno</string>
+    <string name="punti_da_3_mancati">Punti da 3 a segno</string>
+    <string name="assist">ASSIST</string>
+    <string name="rimbalzi">REBOUND</string>
+    <string name="stoppate">BLOCK</string>
+    <string name="steal">STEAL</string>
+    <string name="data_incontro">Data incontro</string>
+    <string name="resoconto_partita">%1$d punti (%2$d/%3$d), %4$d assist, %5$d rimbalzi, %6$d palle rubate, %7$d stoppate.</string>
+    <string name="salva_partita">Salva Partita</string>
+    <string name="text_home_calendario">Partite di Basket per anno</string>
+    <string name="minuti_giocati">MINUTI</string>
+    <string name="torneo">TORNEO</string>
+    <string name="minus">-</string>
+    <string name="zero">0</string>
+    <string name="plus">+</string>
+    <string name="nome_torneo">nome torneo</string>
+    <string name="tiri_da_2">TIRI 2 PUNTI</string>
+    <string name="liberi">TIRI LIBERI</string>
+    <string name="tiri_da_3">TIRI 3 PUNTI</string>
+    <string name="realizzati">Realizzati</string>
+    <string name="mancati">Mancati</string>
+    <string name="nome_partita_n">Nome Partita \n</string>
+    <string name="_0">0</string>
+    <string name="title_classifica">Classifica</string>
+    <string name="pos">Pos</string>
+    <string name="squadra">Squadra</string>
+    <string name="punti">Punti</string>
+    <string name="g">G</string>
+    <string name="v">V</string>
+    <string name="p">P</string>
+    <string name="pf">PF</string>
+    <string name="ps">PS</string>
+
+</resources>

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.statistiche.StatisticsFragment">
+
+    <!-- SEZIONE FISSA: Spinner per Tornei e Stagioni -->
+    <LinearLayout
+        android:id="@+id/fixedHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Spinner
+            android:id="@+id/spinner_tornei"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/tornei" />
+
+        <Spinner
+            android:id="@+id/spinner_stagione"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/stagioni" />
+    </LinearLayout>
+
+    <!-- SEZIONE SCROLLABILE -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/fixedHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Sezione Percentuali di Tiro -->
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageViewCanestri"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/puntifatti" />
+
+                <TextView
+                    android:id="@+id/textTiriDa2Fatti"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="10.1 pp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <!-- Percentuale Tiri Liberi -->
+                <TextView
+                    android:id="@+id/text_tiri_liberi_percentuale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="FT: 80%"
+                    android:textSize="18sp"
+                    android:textStyle="normal" />
+
+                <!-- Percentuale Tiri da 2 -->
+                <TextView
+                    android:id="@+id/text_tiri_da_2_percentuale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="2P: 50%"
+                    android:textSize="18sp"
+                    android:textStyle="normal" />
+
+                <!-- Percentuale Tiri da 3 -->
+                <TextView
+                    android:id="@+id/text_tiri_da_3_percentuale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="3P: 40%"
+                    android:textSize="18sp"
+                    android:textStyle="normal" />
+            </LinearLayout>
+
+            <!-- LineChart Punti -->
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChartTiri"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp" />
+
+            <!-- Sezione Tartaruga -->
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_tartaruga"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Indice Tartaruga"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/icona_tartaruga" />
+            </LinearLayout>
+
+            <!-- LineChart Tartaruga -->
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChartTartaruga"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="5dp" />
+
+            <!-- Sezione Statistiche (Assist, Rimbalzi, Minuti) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <!-- Rimbalzi -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/imageViewRimbalzi"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/rimbalzi" />
+
+                    <TextView
+                        android:id="@+id/numero_rimbalzi_pp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3 pp"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_rimbalzi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/rimbalzi"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Assist -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/imageViewAssist"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/assist" />
+
+                    <TextView
+                        android:id="@+id/numero_assist_pp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6 pp"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_assist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/assist"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Minuti giocati -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/imageViewCronometro"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/minutigiocati" />
+
+                    <TextView
+                        android:id="@+id/minuti_giocati_pp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="18' pp"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_minuti_giocati"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MINUTI"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Sezione Vittorie e Sconfitte -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/partite_W"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8 W"
+                    android:textSize="20sp"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:id="@+id/partite_L"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8 L"
+                    android:textSize="20sp"
+                    android:textStyle="normal"
+                    android:layout_marginStart="16dp"/>
+                <!-- Indice di vittoria -->
+                <TextView
+                    android:id="@+id/partite_stat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=".500"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+            <!-- Footer -->
+            <TextView
+                android:id="@+id/text_view_footer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:text=""
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

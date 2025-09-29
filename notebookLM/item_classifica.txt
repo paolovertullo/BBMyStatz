@@ -1,0 +1,91 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Posizione -->
+    <TextView
+        android:id="@+id/posizione"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <!-- Squadra -->
+    <TextView
+        android:id="@+id/squadra"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:textSize="12sp"
+        android:padding="4dp"
+        android:ellipsize="none"
+        android:maxLines="2"
+        android:lineSpacingExtra="4dp"
+        android:scrollHorizontally="false" />
+
+    <!-- Punti -->
+    <TextView
+        android:id="@+id/punti"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <!-- G (Partite Giocate) -->
+    <TextView
+        android:id="@+id/partiteGiocate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <!-- V (Vinte) -->
+    <TextView
+        android:id="@+id/vinte"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <!-- P (Perse) -->
+    <TextView
+        android:id="@+id/perse"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:padding="4dp" />
+
+    <!-- PF (Punti Fatti) -->
+    <TextView
+        android:id="@+id/puntiFatti"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="9sp"
+        android:padding="2dp" />
+
+    <!-- PS (Punti Subiti) -->
+    <TextView
+        android:id="@+id/puntiSubiti"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="9sp"
+        android:padding="2dp" />
+</LinearLayout>

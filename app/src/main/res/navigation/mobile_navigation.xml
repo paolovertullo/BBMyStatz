@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_calendario">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.mapovich.bbmystatz.ui.homeCalendario.HomeCalendarioFragment"
+        android:label="@string/title_home_calendario"
+        tools:layout="@layout/fragment_home_calendario"
+        app:launchSingleTop="true">
+        <action
+            android:id="@+id/action_homeCalendarioFragment_to_partiteFragment"
+            app:destination="@id/navigation_partita_live" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_partita_live"
+        android:name="com.mapovich.bbmystatz.ui.partite.MatchComposeFragment"
+        android:label="Partita (New)">
+        <argument
+            android:name="partitaId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_statistiche"
+        android:name="com.mapovich.bbmystatz.ui.statistiche.StatisticsFragment"
+        android:label="@string/title_statistiche"
+        tools:layout="@layout/fragment_statistiche" />
+
+    <fragment
+        android:id="@+id/navigation_classifica"
+        android:name="com.mapovich.bbmystatz.ui.classifica.ClassificaFragment"
+        android:label="@string/title_classifica"
+        tools:layout="@layout/fragment_classifica" />
+
+
+
+    <fragment
+        android:id="@+id/navigation_calendario"
+        android:name="com.mapovich.bbmystatz.ui.homeCalendario.HomeCalendarioComposeFragment"
+        android:label="Calendario (NEW)">
+
+    </fragment>
+</navigation>

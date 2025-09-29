@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home_calendario" />
+
+    <item
+        android:id="@+id/navigation_partita"
+        android:icon="@drawable/ic_partita_black_24dp"
+        android:title="@string/title_partite" />
+
+    <item
+        android:id="@+id/navigation_statistiche"
+        android:icon="@drawable/ic_statistica_black_24dp"
+        android:title="@string/title_statistiche" />
+
+    <item
+        android:id="@+id/navigation_classifica"
+        android:icon="@drawable/ic_classifica_black_24dp"
+        android:title="@string/title_classifica" />
+
+</menu>

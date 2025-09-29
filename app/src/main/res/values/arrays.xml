@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stagioni">
+        <item>2023/24</item>
+        <item>2024/25</item>
+        <item>2025/26</item>
+    </string-array>
+    <string-array name="tornei">
+        <item>TUTTE</item>
+        <item>U13 Regionale</item>
+        <item>U13 Coppa FIP</item>
+        <item>Amichevole</item>
+        <item>Cisterna di Latina</item>
+        <item>ASI Falchi Silver</item>
+        <item>Alba Adriatica AICS</item>
+    </string-array>
+</resources>

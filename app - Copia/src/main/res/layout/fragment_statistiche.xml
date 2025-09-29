@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.statistiche.StatisticsFragment">
+
+    <!-- Spinner per tornei -->
+    <Spinner
+        android:id="@+id/spinner_tornei"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:entries="@array/tornei"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/spinner_stagione"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="16dp"
+        app:layout_constraintHorizontal_chainStyle="packed" />
+
+    <!-- Spinner per stagioni -->
+
+    <!-- Sezione Tiri -->
+
+    <Spinner
+        android:id="@+id/spinner_stagione"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:entries="@array/stagioni"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/spinner_tornei"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_stagione">
+
+        <!-- Icona Tiri -->
+        <ImageView
+            android:id="@+id/imageViewCanestri"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/puntifatti" />
+
+        <!-- Testo Tiri -->
+        <TextView
+            android:id="@+id/text_tiri_da_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="TIRI"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Percentuale Tiri -->
+        <TextView
+            android:id="@+id/text_tiri_da_2_percentuale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="50%"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Tiri per Partita -->
+        <TextView
+            android:id="@+id/text_tiri_da_2_fatti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="9.9 pp"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- LineChart Tiri -->
+
+    <!-- Statistiche: Rimbalzi, Assist, Minuti -->
+
+    <!-- Vittorie, Sconfitte e Indice di vittoria -->
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/lineChartTiri"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="120dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lineChartTiri">
+
+        <!-- Rimbalzi -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageViewRimbalzi"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/rimbalzi" />
+
+            <TextView
+                android:id="@+id/numero_rimbalzi_pp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 pp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_rimbalzi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rimbalzi"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Assist -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageViewAssist"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/assist" />
+
+            <TextView
+                android:id="@+id/numero_assist_pp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6 pp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/assist"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Minuti giocati -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageViewCronometro"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/minutigiocati" />
+
+            <TextView
+                android:id="@+id/minuti_giocati_pp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="18' pp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_minuti_giocati"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MINUTI"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lineChartTiri">
+
+        <!-- Vittorie -->
+        <TextView
+            android:id="@+id/partite_W"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="8 W"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Sconfitte -->
+        <TextView
+            android:id="@+id/partite_L"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="8 L"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Indice di vittoria -->
+        <TextView
+            android:id="@+id/partite_stat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=".500"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

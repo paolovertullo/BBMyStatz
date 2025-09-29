@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/input_squadra_casa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Squadra in casa" />
+
+    <EditText
+        android:id="@+id/input_squadra_ospite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Squadra ospite" />
+
+    <EditText
+        android:id="@+id/input_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Data (dd-mm-yyyy)" />
+
+    <EditText
+        android:id="@+id/input_risultato"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Risultato" />
+    <TextView
+        android:id="@+id/partite_L"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginLeft="3dp"
+        android:text="Torneo"
+      />
+
+    <Spinner
+        android:id="@+id/spinner_tornei"
+        android:layout_height="45dp"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:entries="@array/tornei" />
+
+</LinearLayout>

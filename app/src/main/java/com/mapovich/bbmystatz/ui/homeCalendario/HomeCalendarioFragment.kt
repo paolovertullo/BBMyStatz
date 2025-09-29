@@ -1,0 +1,151 @@
+package com.mapovich.bbmystatz.ui.homeCalendario
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.CalendarView
+import android.widget.ListView
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.mapovich.bbmystatz.data.adapter.PartitaAdapter
+import com.mapovich.bbmystatz.data.database.BBMyStatzDatabase
+import com.mapovich.bbmystatz.data.model.Partita
+import com.mapovich.bbmystatz.databinding.FragmentHomeCalendarioBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.fragment.app.activityViewModels
+import com.mapovich.bbmystatz.viewmodel.SharedViewModel
+import androidx.navigation.fragment.findNavController
+import com.mapovich.bbmystatz.R
+
+class HomeCalendarioFragment : Fragment() {
+
+    private var _binding: FragmentHomeCalendarioBinding? = null
+
+
+    private val binding get() = _binding!!
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val homeCalendarioViewModel =
+            ViewModelProvider(this).get(HomeCalendarioViewModel::class.java)
+
+        _binding = FragmentHomeCalendarioBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+
+        val spinnerStagione = binding.spinnerStagione
+        val spinnerTornei = binding.spinnerTornei
+
+        var initialSeason = spinnerStagione.selectedItem.toString()
+        var initialTorneo = spinnerTornei.selectedItem.toString()
+
+        sharedViewModel.selectedSeason.observe(viewLifecycleOwner) { season ->
+            // Qui ricevi il valore aggiornato
+            initialSeason = season
+            val adapter = spinnerStagione.adapter
+            val position = (0 until adapter.count).find {
+                adapter.getItem(it).toString() == season
+            } ?: 0 // Default a 0 se non trova il valore
+            spinnerStagione.setSelection(position)
+        }
+
+        sharedViewModel.selectedTorneo.observe(viewLifecycleOwner) { torneo ->
+            // Qui ricevi il valore aggiornato
+            initialTorneo = torneo
+            val adapter = spinnerTornei.adapter
+            val position = (0 until adapter.count).find {
+                adapter.getItem(it).toString() == torneo
+            } ?: 0
+
+            spinnerTornei.setSelection(position)
+
+            lifecycleScope.launch {
+                getGames(initialSeason, initialTorneo)
+                spinnerStagione.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        val selectedSeason = parent?.getItemAtPosition(position).toString()
+                        lifecycleScope.launch {
+                            // Aggiorna il ViewModel
+                            sharedViewModel.setSelectedSeason(selectedSeason)
+                            getGames(selectedSeason, initialTorneo)
+                            initialSeason = selectedSeason
+                        }
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+
+                spinnerTornei.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        val selectedTorneo = parent?.getItemAtPosition(position).toString()
+                        lifecycleScope.launch {
+                            // Aggiorna il ViewModel
+                            sharedViewModel.setSelectedTorneo(selectedTorneo)
+                            getGames(initialSeason, selectedTorneo)
+                            initialTorneo = selectedTorneo
+                        }
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+            }
+
+        }
+
+        // Get upcoming games from database
+        //getUpcomingGames()
+
+        return root
+    }
+
+    private suspend fun getGames(selectedSeason: String, selectedTorneo: String) {
+
+        val database = BBMyStatzDatabase.getDatabase(requireContext())
+        val partitaDao = database.partitaDao()
+        val numPartite = partitaDao.countPartite()
+
+        if (numPartite == 0)
+            partitaDao.populateDatabaseFromCsv(requireContext())
+
+
+        var games: List<Partita>? = null
+        if (selectedTorneo == "TUTTE") {
+            games = partitaDao.getPartiteForSeason(selectedSeason)
+        } else {
+            games = partitaDao.getPartiteForSeasonTorneo(selectedSeason, selectedTorneo)
+        }
+        val adapter = games?.let { PartitaAdapter(it, requireContext()) }
+        binding.listaPartite.adapter = adapter
+
+
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+
+
+
+}

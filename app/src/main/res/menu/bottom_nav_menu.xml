@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Calendario NUOVO -->
+    <!-- Possiamo cancellare Calendario e partita VECCHI sia classi che tutto il resto -->
+    <item
+        android:id="@+id/navigation_calendario"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home_calendario" />
+
+    <item
+        android:id="@+id/navigation_partita_live"
+        android:icon="@drawable/ic_partita_black_24dp"
+        android:title="@string/partita_new" />
+
+    <item
+        android:id="@+id/navigation_statistiche"
+        android:icon="@drawable/ic_statistica_black_24dp"
+        android:title="@string/title_statistiche" />
+
+    <item
+        android:id="@+id/navigation_classifica"
+        android:icon="@drawable/ic_classifica_black_24dp"
+        android:title="@string/title_classifica" />
+
+
+</menu>

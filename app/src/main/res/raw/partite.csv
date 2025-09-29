@@ -1,0 +1,33 @@
+stagione,data,squadraCasa,squadraOspite,risultato,pt1fatto,pt1mancato,pt2fatto,pt2mancato,pt3fatto,pt3mancato,assist,rimbalziDifensivi,stoppate,steal,minutigioco,trofeo,esito,plusminus,rimbalziOffensivi
+2023/2024,2023-12-03,Olimpia Roma,Vis Aurelia,22-84,2,0,8,0,0,0,7,0,0,0,10,ASI Falchi Silver,W,0,0
+2023/2024,2023-12-10,Vis Aurelia,Acilia Red Foxes,38-23,0,0,6,0,0,0,3,0,0,0,10,ASI Falchi Silver,W,0,0
+2024/2025,2024-09-28,Vis Aurelia,Basket Roma,24-63,0,2,1,0,0,0,0,3,0,3,18,Amichevole,L,0,0
+2024/2025,2024-09-29,Vis Aurelia,UISP 18,53-66,2,2,1,0,0,0,4,5,0,3,20,Amichevole,L,0,0
+2024/2025,2024-10-05,Terracina,Vis Aurelia,18-31,0,2,3,1,0,0,2,5,0,3,17,Cisterna di Latina,W,0,0
+2024/2025,2024-10-05,Vis Aurelia,Sant'Anna Morena,48-21,0,0,1,6,0,0,5,3,0,6,17,Cisterna di Latina,W,0,0
+2024/2025,2024-10-05,Vis Aurelia,Cisterna Latina,23-34,0,0,2,3,0,0,1,4,0,2,17,Cisterna di Latina,L,0,0
+2024/2025,2024-10-26,Vis Aurelia,Parco di Veio,44-57,1,5,3,2,0,0,2,3,0,5,22,Amichevole,L,0,0
+2024/2025,2024-11-26,Basket Primavalle,Vis Aurelia,36-65,0,0,5,7,0,0,3,2,0,6,18,U13 Regionale,W,0,0
+2024/2025,2024-11-30,Vis Aurelia,Polysportiva19,58-33,0,2,4,6,0,0,3,8,2,3,17,U13 Regionale,W,0,0
+2024/2025,2024-12-07,Vis Aurelia,Romana Basket,86-21,0,0,8,8,0,0,3,3,0,4,10,U13 Regionale,W,0,0
+2024/2025,2024-12-14,Parco di Veio,Vis Aurelia,72-49,2,0,4,3,0,0,1,3,0,2,19,U13 Regionale,L,0,0
+2024/2025,2024-12-15,Vis Aurelia,Stella Azzurra,71-38,1,5,6,10,0,0,6,4,0,5,22,U13 Regionale,W,0,0
+2024/2025,2024-12-22,Licaeum Basketball,Vis Aurelia,63-35,0,0,5,3,0,0,0,6,0,4,35,U13 Regionale,L,0,0
+2024/2025,2025-01-18,Polysportiva19,Vis Aurelia,44-56,1,1,5,3,0,0,2,4,0,3,30,U13 Regionale,W,0,0
+2024/2025,2025-01-26,Vis Aurelia,Basket Primavalle,59-25,1,1,5,6,0,0,2,5,1,2,22,U13 Regionale,W,0,0
+2024/2025,2025-01-29,Romana Basket,Vis Aurelia,18-60,0,0,5,5,0,0,5,3,0,7,22,U13 Regionale,W,0,0
+2024/2025,2025-02-09,Vis Aurelia,Parco di Veio,42-49,4,3,2,9,0,0,4,5,1,6,37,U13 Regionale,L,0,0
+2024/2025,2025-02-15,Stella Azzurra,Vis Aurelia,90-46,0,0,5,6,1,0,0,2,0,0,27,U13 Regionale,L,0,0
+2024/2025,2025-02-23,Vis Aurelia,Licaeum Basketball,39-69,0,0,0,0,0,0,0,0,0,0,0,U13 Regionale,L,0,0
+2024/2025,2025-02-23,Vis Aurelia,Bracciano,55-66,1,3,4,5,0,0,3,6,1,5,35,U13 Regionale,L,0,0
+2024/2025,2025-02-23,Bracciano,Vis Aurelia,51-51,0,2,2,8,0,0,3,3,0,6,35,U13 Regionale,L,0,0
+2024/2025,2025-04-15,Basket Primavalle,Vis Aurelia,34-39,1,5,1,10,0,0,3,5,0,4,33,U13 Coppa FIP,W,0,0
+2024/2025,2025-04-16,Virtus SR BK,Vis Aurelia,51-56,0,2,1,2,0,0,1,3,0,3,26,U13 Coppa FIP,W,0,0
+2024/2025,2025-05-03,Vis Aurelia,UISP XVIII,56-57,1,1,2,5,0,0,5,4,0,2,34,U13 Coppa FIP,P,0,0
+2024/2025,2025-05-04,Vis Aurelia,Supernova,0-0,0,0,0,0,0,0,0,0,0,0,0,U13 Coppa FIP,P,0,0
+2024/2025,2025-05-17,Vis Aurelia,Petriana,0-0,0,0,0,0,0,0,0,0,0,0,0,U13 Coppa FIP,P,0,0
+2024/2025,2025-05-09,Porto S.Giorgio,Vis Aurelia,0-0,0,0,0,0,0,0,0,0,0,0,0,Alba Adriatica AICS,P,0,0
+2024/2025,2025-05-10,Vis Aurelia,Loc. Prenestino,0-0,0,0,0,0,0,0,0,0,0,0,0,Alba Adriatica AICS,P,0,0
+2024/2025,2025-05-10,Vis Aurelia,X,0-0,0,0,0,0,0,0,0,0,0,0,0,Alba Adriatica AICS,P,0,0
+2024/2025,2025-05-11,Vis Aurelia,Y,0-0,0,0,0,0,0,0,0,0,0,0,0,Alba Adriatica AICS,P,0,0
+2025/2026,2025-09-21,Vis Aurelia,Y,0-0,0,0,0,0,0,0,0,0,0,0,0,Amichevole,P,0,0

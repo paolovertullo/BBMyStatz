@@ -1,0 +1,13 @@
+package com.mapovich.bbmystatz.ui.homeCalendario
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class HomeCalendarioViewModel : ViewModel() {
+
+    private val _text = MutableLiveData<String>().apply {
+        value = "Calendario U13 2024"
+    }
+    val text: LiveData<String> = _text
+}

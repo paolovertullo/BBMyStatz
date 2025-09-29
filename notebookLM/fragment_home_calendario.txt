@@ -1,0 +1,67 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.homeCalendario.HomeCalendarioFragment">
+
+    <!-- Titolo -->
+    <TextView
+        android:id="@+id/text_home_calendario"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/text_home_calendario"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Spinner Tornei -->
+    <Spinner
+        android:id="@+id/spinner_tornei"
+        android:layout_width="200dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="16dp"
+        android:entries="@array/tornei"
+        app:layout_constraintStart_toStartOf="@id/text_home_calendario"
+        app:layout_constraintTop_toBottomOf="@id/text_home_calendario" />
+
+    <!-- Spinner Stagione -->
+    <Spinner
+        android:id="@+id/spinner_stagione"
+        android:layout_width="185dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:entries="@array/stagioni"
+        app:layout_constraintStart_toEndOf="@id/spinner_tornei"
+        app:layout_constraintTop_toBottomOf="@id/text_home_calendario" />
+
+    <!-- Lista delle Partite -->
+    <ListView
+        android:id="@+id/lista_partite"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/spinner_tornei"
+        app:layout_constraintBottom_toTopOf="@id/text_view_footer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Footer -->
+    <TextView
+        android:id="@+id/text_view_footer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

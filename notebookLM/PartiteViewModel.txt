@@ -1,0 +1,15 @@
+package com.mapovich.bbmystatz.ui.partite
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class PartiteViewModel : ViewModel() {
+
+    private val _text = MutableLiveData<String>().apply {
+        value = "Partita :"
+    }
+    val text: LiveData<String> = _text
+
+
+}
