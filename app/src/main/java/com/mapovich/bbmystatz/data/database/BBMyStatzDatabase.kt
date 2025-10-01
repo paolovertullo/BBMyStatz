@@ -6,14 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.mapovich.bbmystatz.data.dao.PartitaDao
 import com.mapovich.bbmystatz.data.dao.SquadraDao
+import com.mapovich.bbmystatz.data.dao.DettaglioPartitaDao
 import com.mapovich.bbmystatz.data.model.Partita
 import com.mapovich.bbmystatz.data.model.SquadraEntity
+import com.mapovich.bbmystatz.data.model.DettaglioPartita
 
-@Database(entities = [Partita::class, SquadraEntity::class], version = 40)
+@Database(
+    entities = [Partita::class, SquadraEntity::class, DettaglioPartita::class],
+    version = 41
+)
 abstract class BBMyStatzDatabase : RoomDatabase() {
 
     abstract fun partitaDao(): PartitaDao
     abstract fun squadraDao(): SquadraDao
+    abstract fun dettaglioDao(): DettaglioPartitaDao
 
     companion object {
         @Volatile
@@ -25,7 +31,10 @@ abstract class BBMyStatzDatabase : RoomDatabase() {
                     context.applicationContext,
                     BBMyStatzDatabase::class.java,
                     "bbmystatz_database"
-                ).fallbackToDestructiveMigration().build()
+                )
+                    // NB: per ora distruttiva. Se vuoi migrazioni, le aggiungiamo dopo.
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

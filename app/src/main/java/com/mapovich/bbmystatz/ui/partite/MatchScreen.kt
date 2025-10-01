@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
@@ -26,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -35,7 +35,7 @@ import java.util.Locale
 // ---------------------------
 data class MatchUiState(
     val partitaId: Int = -1,
-    val matchTitle: String = "Lakers vs Vis Aurelia",
+    val matchTitle: String = "LAL Lakers vs Vis Aurelia",
     val isOnCourt: Boolean = false,
     val teamScore: Int = 0,
     val oppScore: Int = 0,
@@ -48,24 +48,25 @@ data class MatchUiState(
     val twoMade: Int = 0, val twoMiss: Int = 0,
     val threeMade: Int = 0, val threeMiss: Int = 0,
     val rebOff: Int = 0, val rebDef: Int = 0,
-    val ast: Int = 0, val stl: Int = 0, val blk: Int = 0,val periodo: Periodo = Periodo.Q1
+    val ast: Int = 0, val stl: Int = 0, val blk: Int = 0,
+    val periodo: Periodo = Periodo.Q1,
+    val esito: String = "L"
 )
-
 
 data class MatchCallbacks(
     val onToggleOnCourt: () -> Unit = {},
     val onTeamPoints: (Int) -> Unit = {},
-    val onTeamPointsWithAssist: (Int) -> Unit = {}, // long-press +2/+3 su NOI → +AST Samuele
+    val onTeamPointsWithAssist: (Int) -> Unit = {},
     val onOppPoints: (Int) -> Unit = {},
-    val onPlayerMade: (Int) -> Unit = {},           // S +1/+2/+3
-    val onPlayerMissed: (Int) -> Unit = {},         // S −1/−2/−3
+    val onPlayerMade: (Int) -> Unit = {},
+    val onPlayerMissed: (Int) -> Unit = {},
     val onRebOff: () -> Unit = {},
     val onRebDef: () -> Unit = {},
     val onAst: () -> Unit = {},
     val onStl: () -> Unit = {},
     val onBlk: () -> Unit = {},
     val onUndo: () -> Unit = {},
-    val onPeriodoChange: (Periodo) -> Unit
+    val onPeriodoChange: (Periodo) -> Unit,   // <-- IMPORTANTE
 )
 
 enum class Periodo { Q1, Q2, Q3, Q4, OT }
@@ -79,13 +80,20 @@ fun MatchScreen(
     callbacks: MatchCallbacks,
     modifier: Modifier = Modifier
 ) {
+    // --- PONTE DIAGNOSTICO: wrappo il callback e loggo ---
+    val onPeriodoFromScreen: (Periodo) -> Unit = remember(callbacks.onPeriodoChange) {
+        { p ->
+            Log.d("MatchScreen", "Bridge -> onPeriodoChange($p)") // deve SEMPRE stampare
+            callbacks.onPeriodoChange(p)                           // rilancio verso l'host
+        }
+    }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = callbacks.onUndo,
                 modifier = Modifier
-                    .navigationBarsPadding()   // evita sovrapposizione con la nav bar
-                    .offset(y = (-24).dp),     // lo alza un po'
+                    .navigationBarsPadding()
+                    .offset(y = (-24).dp),
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
@@ -105,15 +113,39 @@ fun MatchScreen(
             ElevatedCard(shape = MaterialTheme.shapes.extraLarge) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "${state.torneo}",
+                        state.torneo,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    // Pulisco il titolo da W/L/D
+                    val cleanTitle = stripEsitoFromTitle(state.matchTitle)
                     Text(
-                        state.matchTitle,
+                        cleanTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
+
+                    // Badge "Vinta/Persa/Pareggio"
+                    val esitoCode = inferEsitoCode(state)
+                    val esitoLabel = esitoLabelFromCode(esitoCode)
+                    if (esitoLabel.isNotEmpty()) {
+                        val (bg, fg) = when (esitoLabel) {
+                            "Vinta"    -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+                            "Persa"    -> MaterialTheme.colorScheme.errorContainer   to MaterialTheme.colorScheme.onErrorContainer
+                            else       -> MaterialTheme.colorScheme.surfaceVariant   to MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        AssistChip(
+                            onClick = { /* no-op */ },
+                            label = { Text(esitoLabel) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = bg,
+                                labelColor = fg
+                            ),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+
                     Row(
                         Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -124,15 +156,17 @@ fun MatchScreen(
                             modifier = Modifier.weight(1f)
                         )
                         Text("PM ${state.plusMinus}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
-                        // Timer “vivo” (scorre quando è in campo)
                         val liveClock = rememberLiveClock(state.isOnCourt, state.secondsPlayed)
                         Text(liveClock, style = MaterialTheme.typography.titleMedium)
                     }
-                    QuarterPicker(
+
+                    // Selettore Periodo: PASSA IL PONTE
+                    PeriodoSegmentedSelector(
                         selected = state.periodo,
-                        onSelect = callbacks.onPeriodoChange,
+                        onSelect = onPeriodoFromScreen, // <--- usa il ponte
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     FilledTonalButton(
                         onClick = callbacks.onToggleOnCourt,
                         modifier = Modifier.fillMaxWidth(),
@@ -151,7 +185,6 @@ fun MatchScreen(
                     onPlus1 = { callbacks.onTeamPoints(1) },
                     onPlus2 = { callbacks.onTeamPoints(2) },
                     onPlus3 = { callbacks.onTeamPoints(3) },
-                    // Long-press: +AST di Samuele
                     onPlus2Long = { callbacks.onTeamPointsWithAssist(2) },
                     onPlus3Long = { callbacks.onTeamPointsWithAssist(3) },
                     modifier = Modifier.weight(1f)
@@ -199,21 +232,27 @@ fun MatchScreen(
                         OutlinedButton(
                             onClick = { if (state.isOnCourt) callbacks.onPlayerMissed(1) },
                             enabled = state.isOnCourt,
-                            modifier = Modifier.weight(1f).height(40.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
                             shape = MaterialTheme.shapes.large
                         ) { Text("S −1", fontSize = 14.sp) }
 
                         OutlinedButton(
                             onClick = { if (state.isOnCourt) callbacks.onPlayerMissed(2) },
                             enabled = state.isOnCourt,
-                            modifier = Modifier.weight(1f).height(40.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
                             shape = MaterialTheme.shapes.large
                         ) { Text("S −2", fontSize = 14.sp) }
 
                         OutlinedButton(
                             onClick = { if (state.isOnCourt) callbacks.onPlayerMissed(3) },
                             enabled = state.isOnCourt,
-                            modifier = Modifier.weight(1f).height(40.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
                             shape = MaterialTheme.shapes.large
                         ) { Text("S −3", fontSize = 14.sp) }
                     }
@@ -232,7 +271,6 @@ fun MatchScreen(
             // ----- STATISTICHE PARTITA -----
             StatsCard(state = state)
 
-            // più spazio per il FAB + rispetto delle system bars
             Spacer(
                 Modifier
                     .height(96.dp)
@@ -243,12 +281,10 @@ fun MatchScreen(
 }
 
 // ---------------------------
-// SUB-COMPOSABLES
+// SELETTORE PERIODO - SEGMENTED BUTTONS (selected/onClick)
 // ---------------------------
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuarterPicker(
+private fun PeriodoSegmentedSelector(
     selected: Periodo,
     onSelect: (Periodo) -> Unit,
     modifier: Modifier = Modifier
@@ -262,20 +298,26 @@ fun QuarterPicker(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 6.dp)
         )
-        SingleChoiceSegmentedButtonRow {
+
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.selectableGroup()
+        ) {
             items.forEachIndexed { index, periodo ->
-                val selectedNow = periodo == selected
+                val isSelected = (periodo == selected)
                 SegmentedButton(
-                    selected = selectedNow,
-                    onClick = { onSelect(periodo) },
-                    shape = SegmentedButtonDefaults.itemShape(index, items.size),
+                    selected = isSelected,
+                    onClick = {
+                        Log.d("PeriodoUI", "Click UI -> $periodo") // <-- DEBUG UI
+                        onSelect(periodo)                           // <-- chiama il callback dall'host (vm::setPeriodo)
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = items.size),
                     colors = SegmentedButtonDefaults.colors(
                         activeContainerColor   = MaterialTheme.colorScheme.primary,
                         activeContentColor     = MaterialTheme.colorScheme.onPrimary,
-                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface,
                         inactiveContentColor   = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    icon = { if (selectedNow) Icon(Icons.Rounded.Check, null) }
+                    icon = { if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null) }
                 ) {
                     Text(
                         when (periodo) {
@@ -289,12 +331,12 @@ fun QuarterPicker(
                 }
             }
         }
-
     }
 }
 
-
-
+// ---------------------------
+// SUB-COMPOSABLES (TeamCard, StatChip, StatsCard, util, preview)
+// ---------------------------
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TeamCard(
@@ -308,21 +350,23 @@ private fun TeamCard(
 ) {
     ElevatedCard(shape = MaterialTheme.shapes.extraLarge, modifier = modifier) {
         Column(
-            Modifier.padding(12.dp).fillMaxWidth(),
+            Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(title, style = MaterialTheme.typography.titleSmall)
 
-            // +1
             OutlinedButton(
                 onClick = onPlus1,
                 shape = MaterialTheme.shapes.large,
-                modifier = Modifier.fillMaxWidth().height(40.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
                 colors = outlinedButtonColors()
             ) { Text("+1", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
 
-            // +2 (con eventuale long-press → assist Samuele)
             OutlinedButton(
                 onClick = onPlus2,
                 shape = MaterialTheme.shapes.large,
@@ -337,7 +381,6 @@ private fun TeamCard(
                 colors = outlinedButtonColors()
             ) { Text("+2", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
 
-            // +3 (con eventuale long-press → assist Samuele)
             OutlinedButton(
                 onClick = onPlus3,
                 shape = MaterialTheme.shapes.large,
@@ -377,34 +420,6 @@ private fun StatChip(
     }
 }
 
-@Composable
-private fun PeriodRadioGroup(
-    selected: Int,
-    onChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier) {
-        Text("Periodo", style = MaterialTheme.typography.labelLarge)
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            (1..4).forEach { p ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = (selected == p),
-                        onClick = { onChange(p) }
-                    )
-                    Text("${p}P", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
-    }
-}
-
-// ---------------------------
-// STATISTICHE PARTITA
-// ---------------------------
 @Composable
 private fun StatsCard(state: MatchUiState, modifier: Modifier = Modifier) {
     ElevatedCard(shape = MaterialTheme.shapes.extraLarge, modifier = modifier.fillMaxWidth()) {
@@ -451,7 +466,7 @@ private fun StatRow(label: String, made: Int, miss: Int) {
 }
 
 // ---------------------------
-// UTILS
+// UTILS & PREVIEW
 // ---------------------------
 private fun pct(made: Int, miss: Int): String {
     val att = made + miss
@@ -466,7 +481,6 @@ private fun formatClock(totalSeconds: Int): String {
     return "%02d:%02d".format(m, s)
 }
 
-/** Timer che “scorre” in UI quando è in campo (non modifica lo state) */
 @Composable
 private fun rememberLiveClock(isOnCourt: Boolean, baseSeconds: Int): String {
     var tick by remember(isOnCourt) { mutableStateOf(0) }
@@ -488,41 +502,20 @@ fun AppTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable
     MaterialTheme(colorScheme = colors, content = content)
 }
 
-// ---------------------------
-// PREVIEWS
-// ---------------------------
+// -- Preview locale con stato in memoria (per verifica)
 @Preview(name = "Light", showBackground = true)
 @Composable
 fun MatchScreenPreviewLight() {
     AppTheme(useDarkTheme = false) {
         var ui by rememberSaveable { mutableStateOf(fakeState()) }
-
-        val inPreview = androidx.compose.ui.platform.LocalInspectionMode.current
-
-        LaunchedEffect(ui.periodo) {
-            val msg = "Periodo -> ${ui.periodo}"
-            if (inPreview) {
-                println("Preview: $msg")   // va in console IDE, NON in Logcat
-            } else {
-                android.util.Log.d("MatchScreenPreviewLight", msg)
-            }
-        }
-
-        Text("Periodo corrente: ${ui.periodo}", style = MaterialTheme.typography.labelSmall)
-
         MatchScreen(
             state = ui,
             callbacks = MatchCallbacks(
-                onPeriodoChange = { p ->
-                    // QUI niente VM: aggiorni lo stato locale del Preview
-                    ui = ui.copy(periodo = p)
-                }
+                onPeriodoChange = { p -> ui = ui.copy(periodo = p) } // funziona senza VM
             )
         )
     }
 }
-
-
 
 @Preview(name = "Dark", showBackground = true, backgroundColor = 0xFF000000,
     uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
@@ -539,7 +532,6 @@ fun MatchScreenPreviewDark() {
     }
 }
 
-
 private fun fakeState() = MatchUiState(
     isOnCourt = true,
     onCourtRunning = true,
@@ -548,5 +540,31 @@ private fun fakeState() = MatchUiState(
     ftMade = 3, ftMiss = 1,
     twoMade = 5, twoMiss = 3,
     threeMade = 2, threeMiss = 4,
-    rebOff = 2, rebDef = 4, ast = 3, stl = 2, blk = 1, periodo = Periodo.Q1
+    rebOff = 2, rebDef = 4, ast = 3, stl = 2, blk = 1,
+    periodo = Periodo.Q1
 )
+
+// --- UTIL: mapping esito ---
+private fun esitoLabelFromCode(code: String?): String = when (code?.uppercase()) {
+    "W" -> "Vinta"
+    "L" -> "Persa"
+    "D", "P" -> "Pareggio" // P nel tuo lessico indica Pareggio
+    else -> ""
+}
+
+/** Prova a inferire W/L/D: prima da uno state.esito (se lo aggiungerai), altrimenti dal matchTitle. */
+private fun inferEsitoCode(state: MatchUiState): String? {
+    // 1) se in futuro aggiungi state.esito, usa quello:
+    // if (state.esito.isNotBlank()) return state.esito
+
+    // 2) fallback: cerca una W/L/D come parola isolata dentro il matchTitle
+    val regex = Regex("""\b([WLDP])\b""", RegexOption.IGNORE_CASE)
+    return regex.find(state.matchTitle)?.groupValues?.getOrNull(1)
+}
+
+/** Pulisce il titolo togliendo eventuale W/L/D "appesa" in coda o come parola isolata */
+private fun stripEsitoFromTitle(title: String): String {
+    val regex = Regex("""\s*\b([WLDP])\b\s*$""", RegexOption.IGNORE_CASE)
+    return title.replace(regex, "").trim()
+}
+

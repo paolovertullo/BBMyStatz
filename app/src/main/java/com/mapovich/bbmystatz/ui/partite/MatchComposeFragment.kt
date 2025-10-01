@@ -49,6 +49,7 @@ class MatchComposeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
+            val partitaId = requireArguments().getInt("partitaId")
             setContent {
                 AppTheme {
                     val state = vm.uiState
@@ -57,25 +58,26 @@ class MatchComposeFragment : Fragment() {
                     DisposableEffect(Unit) {
                         onDispose { vm.saveNow() }
                     }
+                    MatchRoute(partitaId = partitaId) // <-- IMPORTANTE: usa Route (non MatchScreen)
 
-                    MatchScreen(
-                        state = state,
-                        callbacks = MatchCallbacks(
-                            onToggleOnCourt = { vm.toggleOnCourt() },
-                            onTeamPoints = { vm.addTeamPoints(it) },
-                            onTeamPointsWithAssist = { vm.addTeamPointsWithAssist(it) },
-                            onOppPoints = { vm.addOppPoints(it) },
-                            onPlayerMade = { vm.playerMade(it) },
-                            onPlayerMissed = { vm.playerMissed(it) },
-                            onRebOff = { vm.incReb(true) },
-                            onRebDef = { vm.incReb(false) },
-                            onAst = { vm.incAst() },
-                            onStl = { vm.incStl() },
-                            onBlk = { vm.incBlk() },
-                            onUndo = { vm.undo() },
-                            onPeriodoChange = {}
-                        )
-                    )
+                    /*            MatchScreen(
+                                    state = state,
+                                    callbacks = MatchCallbacks(
+                                        onToggleOnCourt = { vm.toggleOnCourt() },
+                                        onTeamPoints = { vm.addTeamPoints(it) },
+                                        onTeamPointsWithAssist = { vm.addTeamPointsWithAssist(it) },
+                                        onOppPoints = { vm.addOppPoints(it) },
+                                        onPlayerMade = { vm.playerMade(it) },
+                                        onPlayerMissed = { vm.playerMissed(it) },
+                                        onRebOff = { vm.incReb(true) },
+                                        onRebDef = { vm.incReb(false) },
+                                        onAst = { vm.incAst() },
+                                        onStl = { vm.incStl() },
+                                        onBlk = { vm.incBlk() },
+                                        onUndo = { vm.undo() },
+                                        onPeriodoChange = {}
+                                    )
+                                )*/
                 }
             }
         }

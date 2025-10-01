@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/navigation_partita_live"
         android:name="com.mapovich.bbmystatz.ui.partite.MatchComposeFragment"
-        android:label="Partita (New)">
+        android:label="Partita">
         <argument
             android:name="partitaId"
             app:argType="integer"
