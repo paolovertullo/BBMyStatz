@@ -477,19 +477,28 @@ class PartiteFragment : Fragment() {
 
     private fun getPartitaDetails(partitaId: Int) {
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val database = BBMyStatzDatabase.getDatabase(requireContext())
-                val partita = database.partitaDao().getById(partitaId)
-                //partita_corrente = partita
-                partitaDaSalvare = partita
+            val database = BBMyStatzDatabase.getDatabase(requireContext())
 
-                // Update UI on the main thread
-                withContext(Dispatchers.Main) {
-                    displayPartitaDetails(partita)
-                }
+            // carico dal DB su IO
+            val partita: Partita? = withContext(Dispatchers.IO) {
+                database.partitaDao().getById(partitaId) // <- Partita?
             }
+
+            // aggiorna la variabile cache (assicurati che sia di tipo Partita?)
+            partitaDaSalvare = partita
+
+            // gestisci il caso "non trovata"
+            if (partita == null) {
+                // opzionale: pulisci UI o mostra messaggio
+                // showSnackbar("Partita non trovata")
+                return@launch
+            }
+
+            // qui è sicuramente non-null
+            displayPartitaDetails(partita)
         }
     }
+
 
     private fun savePartita(partita: Partita) {
         lifecycleScope.launch {

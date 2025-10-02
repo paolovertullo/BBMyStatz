@@ -38,12 +38,12 @@ fun MatchRoute(partitaId: Int) {
             onStl = { vm.incStl() },
             onBlk = { vm.incBlk() },
             onUndo = { vm.undo() },
-            onPeriodoChange = { p ->
-                Log.d("MatchRoute", "onPeriodoChange -> $p")
-                vm.setPeriodo(p)
-            }
+            onPeriodoChange = { p -> vm.setPeriodo(p) },
+            onUpdateTitle = { t -> vm.updateMatchTitle(t) },
+            onUpdateTorneoStagioneData = { torneo, stagione, data -> vm.updateTorneoStagioneData(torneo, stagione, data) }
         )
     )
+
 }
 
 /** Factory per MatchComposeViewModel */

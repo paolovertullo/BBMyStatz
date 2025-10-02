@@ -23,7 +23,9 @@ interface PartitaDao {
     fun getAll(): List<Partita>
 
     @Insert
-    suspend fun insert(partita: Partita)
+    suspend fun insert(partita: Partita): Long
+
+
 
     @Update
     suspend fun update(partita: Partita)
@@ -80,8 +82,8 @@ interface PartitaDao {
     @Query("SELECT COUNT(*) FROM partite")
     suspend fun countPartite(): Int
 
-    @Query("SELECT * FROM partite WHERE id = :partitaId")
-    suspend fun getById(partitaId: Int): Partita
+    @Query("SELECT * FROM partite WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): Partita?
 
     @Query("SELECT max(id) FROM partite")
     suspend fun maxIdPartita(): Int
@@ -214,5 +216,8 @@ interface PartitaDao {
     @Query("DELETE FROM partite")
     suspend fun deleteAll()
 
+
+    @Query("DELETE FROM partite WHERE id = :id")
+    suspend fun deleteById(id: Int)
 
 }

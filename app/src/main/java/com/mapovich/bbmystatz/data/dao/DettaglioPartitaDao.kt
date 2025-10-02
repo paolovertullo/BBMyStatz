@@ -23,4 +23,5 @@ interface DettaglioPartitaDao {
 
     @Query("DELETE FROM dettagli_partita WHERE partitaId = :partitaId")
     suspend fun deleteAllForPartita(partitaId: Int)
+
 }

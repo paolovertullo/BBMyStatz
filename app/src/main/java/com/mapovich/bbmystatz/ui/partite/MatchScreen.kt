@@ -14,10 +14,13 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults.outlinedButtonColors
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -28,6 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.NumberFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // ---------------------------
@@ -35,7 +42,7 @@ import java.util.Locale
 // ---------------------------
 data class MatchUiState(
     val partitaId: Int = -1,
-    val matchTitle: String = "LAL Lakers vs Vis Aurelia",
+    val matchTitle: String = "LAL Lakers vs Vis Aurelia L",
     val isOnCourt: Boolean = false,
     val teamScore: Int = 0,
     val oppScore: Int = 0,
@@ -43,6 +50,8 @@ data class MatchUiState(
     val secondsPlayed: Int = 0,
     val onCourtRunning: Boolean = false,
     val torneo: String = "Torneo",
+    val stagione: String = "",
+    val data: String = "",                    // <<--- NUOVO: stringa salvata su Room (es. "2025-10-02")
     val matchStartMillis: Long? = null,
     val ftMade: Int = 0,  val ftMiss: Int = 0,
     val twoMade: Int = 0, val twoMiss: Int = 0,
@@ -50,7 +59,11 @@ data class MatchUiState(
     val rebOff: Int = 0, val rebDef: Int = 0,
     val ast: Int = 0, val stl: Int = 0, val blk: Int = 0,
     val periodo: Periodo = Periodo.Q1,
-    val esito: String = "L"
+    val esito: String = "L",
+
+    // Opzioni tendine
+    val availableTornei: List<String> = emptyList(),
+    val availableStagioni: List<String> = emptyList()
 )
 
 data class MatchCallbacks(
@@ -66,7 +79,9 @@ data class MatchCallbacks(
     val onStl: () -> Unit = {},
     val onBlk: () -> Unit = {},
     val onUndo: () -> Unit = {},
-    val onPeriodoChange: (Periodo) -> Unit,   // <-- IMPORTANTE
+    val onPeriodoChange: (Periodo) -> Unit,
+    val onUpdateTitle: (String) -> Unit = {},
+    val onUpdateTorneoStagioneData: (String, String, String) -> Unit = { _, _, _ -> } // <<--- NUOVO
 )
 
 enum class Periodo { Q1, Q2, Q3, Q4, OT }
@@ -80,13 +95,27 @@ fun MatchScreen(
     callbacks: MatchCallbacks,
     modifier: Modifier = Modifier
 ) {
-    // --- PONTE DIAGNOSTICO: wrappo il callback e loggo ---
+    // Dialog titolo partita
+    var showEditTitle by rememberSaveable { mutableStateOf(false) }
+    var tempTitle by rememberSaveable(state.matchTitle) { mutableStateOf(stripEsitoFromTitle(state.matchTitle)) }
+
+    // Dialog torneo/stagione/data (tendine + datepicker)
+    var showEditTSD by rememberSaveable { mutableStateOf(false) }
+    var tempTorneo by rememberSaveable(state.torneo) { mutableStateOf(state.torneo) }
+    var tempStagione by rememberSaveable(state.stagione) { mutableStateOf(state.stagione) }
+    var tempData by rememberSaveable(state.data) { mutableStateOf(state.data) }
+    var expandTorneo by rememberSaveable { mutableStateOf(false) }
+    var expandStagione by rememberSaveable { mutableStateOf(false) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+
+    // Ponte diagnostico per il cambio periodo
     val onPeriodoFromScreen: (Periodo) -> Unit = remember(callbacks.onPeriodoChange) {
         { p ->
-            Log.d("MatchScreen", "Bridge -> onPeriodoChange($p)") // deve SEMPRE stampare
-            callbacks.onPeriodoChange(p)                           // rilancio verso l'host
+            Log.d("MatchScreen", "Bridge -> onPeriodoChange($p)")
+            callbacks.onPeriodoChange(p)
         }
     }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -112,40 +141,83 @@ fun MatchScreen(
             // ----- HEADER -----
             ElevatedCard(shape = MaterialTheme.shapes.extraLarge) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        state.torneo,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    // Pulisco il titolo da W/L/D
-                    val cleanTitle = stripEsitoFromTitle(state.matchTitle)
-                    Text(
-                        cleanTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
 
-                    // Badge "Vinta/Persa/Pareggio"
-                    val esitoCode = inferEsitoCode(state)
-                    val esitoLabel = esitoLabelFromCode(esitoCode)
-                    if (esitoLabel.isNotEmpty()) {
-                        val (bg, fg) = when (esitoLabel) {
-                            "Vinta"    -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-                            "Persa"    -> MaterialTheme.colorScheme.errorContainer   to MaterialTheme.colorScheme.onErrorContainer
-                            else       -> MaterialTheme.colorScheme.surfaceVariant   to MaterialTheme.colorScheme.onSurfaceVariant
+                    // Riga piccola: Torneo · Stagione · Data + matitina
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val subtitle = buildString {
+                            append(state.torneo)
+                            if (state.stagione.isNotBlank()) {
+                                append(" · "); append(state.stagione)
+                            }
+                            val pretty = prettyDateOrEmpty(state.data)
+                            if (pretty.isNotEmpty()) {
+                                append(" · "); append(pretty)
+                            }
                         }
-                        AssistChip(
-                            onClick = { /* no-op */ },
-                            label = { Text(esitoLabel) },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = bg,
-                                labelColor = fg
-                            ),
-                            modifier = Modifier.padding(top = 4.dp)
+                        Text(
+                            subtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
                         )
+                        IconButton(
+                            onClick = {
+                                tempTorneo = state.torneo
+                                tempStagione = state.stagione
+                                tempData = state.data
+                                showEditTSD = true
+                            }
+                        ) {
+                            Icon(Icons.Rounded.Edit, contentDescription = "Modifica torneo/stagione/data")
+                        }
                     }
 
+                    // Titolo + badge esito (matita a sinistra del badge)
+                    val cleanTitle = stripEsitoFromTitle(state.matchTitle)
+                    val esitoCode = inferEsitoCode(state)
+                    val esitoLabel = esitoLabelFromCode(esitoCode)
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            cleanTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                tempTitle = cleanTitle
+                                showEditTitle = true
+                            },
+                            modifier = Modifier.padding(start = 6.dp)
+                        ) {
+                            Icon(Icons.Rounded.Edit, contentDescription = "Modifica titolo")
+                        }
+                        if (esitoLabel.isNotEmpty()) {
+                            val (bg, fg) = when (esitoLabel) {
+                                "Vinta"  -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+                                "Persa"  -> MaterialTheme.colorScheme.errorContainer   to MaterialTheme.colorScheme.onErrorContainer
+                                else     -> MaterialTheme.colorScheme.surfaceVariant   to MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                            AssistChip(
+                                onClick = {},
+                                label = { Text(esitoLabel) },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = bg,
+                                    labelColor = fg
+                                ),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+
+                    // Punteggio + PM + orologio
                     Row(
                         Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -155,15 +227,19 @@ fun MatchScreen(
                             style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.weight(1f)
                         )
-                        Text("PM ${state.plusMinus}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
+                        Text(
+                            "PM ${state.plusMinus}",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
                         val liveClock = rememberLiveClock(state.isOnCourt, state.secondsPlayed)
                         Text(liveClock, style = MaterialTheme.typography.titleMedium)
                     }
 
-                    // Selettore Periodo: PASSA IL PONTE
+                    // Selettore Periodo
                     PeriodoSegmentedSelector(
                         selected = state.periodo,
-                        onSelect = onPeriodoFromScreen, // <--- usa il ponte
+                        onSelect = onPeriodoFromScreen,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -174,6 +250,165 @@ fun MatchScreen(
                     ) {
                         Icon(Icons.Rounded.Person, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
                         Text(if (state.isOnCourt) "IN CAMPO" else "PANCHINA", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // ---- Dialog: Modifica titolo ----
+                if (showEditTitle) {
+                    AlertDialog(
+                        onDismissRequest = { showEditTitle = false },
+                        title = { Text("Modifica titolo partita") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedTextField(
+                                    value = tempTitle,
+                                    onValueChange = { tempTitle = it },
+                                    singleLine = true,
+                                    label = { Text("Titolo (es. Casa - Ospiti)") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Text(
+                                    "Suggerimento: Controlla l'ordine dei nomi delle squadre.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    val newTitle = tempTitle.trim()
+                                    if (newTitle.isNotEmpty()) {
+                                        callbacks.onUpdateTitle(newTitle)
+                                        showEditTitle = false
+                                    }
+                                }
+                            ) { Text("Salva") }
+                        },
+                        dismissButton = { TextButton(onClick = { showEditTitle = false }) { Text("Annulla") } }
+                    )
+                }
+
+                // ---- Dialog: Modifica Torneo & Stagione & Data ----
+                if (showEditTSD) {
+                    AlertDialog(
+                        onDismissRequest = { showEditTSD = false },
+                        title = { Text("Dettagli competizione") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                // TORNEO (tendina)
+                                ExposedDropdownMenuBox(
+                                    expanded = expandTorneo,
+                                    onExpandedChange = { expandTorneo = !expandTorneo }
+                                ) {
+                                    OutlinedTextField(
+                                        value = tempTorneo,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text("Torneo") },
+                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandTorneo) },
+                                        modifier = Modifier
+                                            .menuAnchor()
+                                            .fillMaxWidth()
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = expandTorneo,
+                                        onDismissRequest = { expandTorneo = false }
+                                    ) {
+                                        (if (state.availableTornei.isNotEmpty()) state.availableTornei else listOf("Amichevole", "Campionato", "Coppa"))
+                                            .forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        tempTorneo = option
+                                                        expandTorneo = false
+                                                    }
+                                                )
+                                            }
+                                    }
+                                }
+
+                                // STAGIONE (tendina)
+                                ExposedDropdownMenuBox(
+                                    expanded = expandStagione,
+                                    onExpandedChange = { expandStagione = !expandStagione }
+                                ) {
+                                    OutlinedTextField(
+                                        value = tempStagione,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text("Stagione") },
+                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandStagione) },
+                                        modifier = Modifier
+                                            .menuAnchor()
+                                            .fillMaxWidth()
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = expandStagione,
+                                        onDismissRequest = { expandStagione = false }
+                                    ) {
+                                        (if (state.availableStagioni.isNotEmpty()) state.availableStagioni else listOf("2023/24", "2024/25", "2025/26"))
+                                            .forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(option) },
+                                                    onClick = {
+                                                        tempStagione = option
+                                                        expandStagione = false
+                                                    }
+                                                )
+                                            }
+                                    }
+                                }
+
+                                // DATA (DatePicker + campo readonly)
+                                OutlinedTextField(
+                                    value = prettyDateOrEmpty(tempData),
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Data gara") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    trailingIcon = {
+                                        TextButton(onClick = { showDatePicker = true }) { Text("Scegli") }
+                                    }
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    callbacks.onUpdateTorneoStagioneData(
+                                        tempTorneo.trim(),
+                                        tempStagione.trim(),
+                                        tempData.trim()
+                                    )
+                                    showEditTSD = false
+                                }
+                            ) { Text("Salva") }
+                        },
+                        dismissButton = { TextButton(onClick = { showEditTSD = false }) { Text("Annulla") } }
+                    )
+
+                    // ---- DatePicker Dialog ----
+                    if (showDatePicker) {
+                        val initialMillis = isoToMillisOrNow(tempData)
+                        val dpState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+                        DatePickerDialog(
+                            onDismissRequest = { showDatePicker = false },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        val sel = dpState.selectedDateMillis
+                                        if (sel != null) {
+                                            tempData = millisToIso(sel) // salva in formato ISO "yyyy-MM-dd" per Room
+                                        }
+                                        showDatePicker = false
+                                    }
+                                ) { Text("OK") }
+                            },
+                            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Annulla") } }
+                        ) {
+                            DatePicker(state = dpState)
+                        }
                     }
                 }
             }
@@ -281,7 +516,7 @@ fun MatchScreen(
 }
 
 // ---------------------------
-// SELETTORE PERIODO - SEGMENTED BUTTONS (selected/onClick)
+// SELETTORE PERIODO - SEGMENTED BUTTONS
 // ---------------------------
 @Composable
 private fun PeriodoSegmentedSelector(
@@ -307,8 +542,8 @@ private fun PeriodoSegmentedSelector(
                 SegmentedButton(
                     selected = isSelected,
                     onClick = {
-                        Log.d("PeriodoUI", "Click UI -> $periodo") // <-- DEBUG UI
-                        onSelect(periodo)                           // <-- chiama il callback dall'host (vm::setPeriodo)
+                        Log.d("PeriodoUI", "Click UI -> $periodo")
+                        onSelect(periodo)
                     },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = items.size),
                     colors = SegmentedButtonDefaults.colors(
@@ -502,7 +737,31 @@ fun AppTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable
     MaterialTheme(colorScheme = colors, content = content)
 }
 
-// -- Preview locale con stato in memoria (per verifica)
+// -- Date helpers (ISO "yyyy-MM-dd" <-> millis, pretty "dd/MM/yyyy")
+private val ISO_FMT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+private val PRETTY_FMT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+private fun millisToIso(millis: Long): String {
+    val ld = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+    return ISO_FMT.format(ld)
+}
+
+private fun isoToMillisOrNow(iso: String): Long {
+    return try {
+        val ld = LocalDate.parse(iso, ISO_FMT)
+        ld.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    } catch (_: Exception) {
+        System.currentTimeMillis()
+    }
+}
+
+private fun prettyDateOrEmpty(iso: String): String {
+    return try {
+        if (iso.isBlank()) "" else PRETTY_FMT.format(LocalDate.parse(iso, ISO_FMT))
+    } catch (_: Exception) { "" }
+}
+
+// -- Preview
 @Preview(name = "Light", showBackground = true)
 @Composable
 fun MatchScreenPreviewLight() {
@@ -511,7 +770,7 @@ fun MatchScreenPreviewLight() {
         MatchScreen(
             state = ui,
             callbacks = MatchCallbacks(
-                onPeriodoChange = { p -> ui = ui.copy(periodo = p) } // funziona senza VM
+                onPeriodoChange = { p -> ui = ui.copy(periodo = p) }
             )
         )
     }
@@ -541,30 +800,26 @@ private fun fakeState() = MatchUiState(
     twoMade = 5, twoMiss = 3,
     threeMade = 2, threeMiss = 4,
     rebOff = 2, rebDef = 4, ast = 3, stl = 2, blk = 1,
-    periodo = Periodo.Q1
+    periodo = Periodo.Q1, esito = "L",
+    torneo = "Torneo Estivo", stagione = "2025/26", data = "2025-10-02",
+    availableTornei = listOf("Amichevole", "Campionato", "Coppa", "Torneo Estivo"),
+    availableStagioni = listOf("2023/24", "2024/25", "2025/26")
 )
 
 // --- UTIL: mapping esito ---
 private fun esitoLabelFromCode(code: String?): String = when (code?.uppercase()) {
     "W" -> "Vinta"
     "L" -> "Persa"
-    "D", "P" -> "Pareggio" // P nel tuo lessico indica Pareggio
+    "D", "P" -> "Pareggio"
     else -> ""
 }
 
-/** Prova a inferire W/L/D: prima da uno state.esito (se lo aggiungerai), altrimenti dal matchTitle. */
 private fun inferEsitoCode(state: MatchUiState): String? {
-    // 1) se in futuro aggiungi state.esito, usa quello:
-    // if (state.esito.isNotBlank()) return state.esito
-
-    // 2) fallback: cerca una W/L/D come parola isolata dentro il matchTitle
     val regex = Regex("""\b([WLDP])\b""", RegexOption.IGNORE_CASE)
     return regex.find(state.matchTitle)?.groupValues?.getOrNull(1)
 }
 
-/** Pulisce il titolo togliendo eventuale W/L/D "appesa" in coda o come parola isolata */
 private fun stripEsitoFromTitle(title: String): String {
     val regex = Regex("""\s*\b([WLDP])\b\s*$""", RegexOption.IGNORE_CASE)
     return title.replace(regex, "").trim()
 }
-
