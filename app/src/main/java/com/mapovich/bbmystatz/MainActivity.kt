@@ -2,6 +2,7 @@ package com.mapovich.bbmystatz
 
 import android.content.Context
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate

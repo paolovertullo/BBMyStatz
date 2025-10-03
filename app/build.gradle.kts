@@ -1,24 +1,30 @@
 plugins {
+    id("com.google.dagger.hilt.android")
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.kapt")
+    //id("org.jetbrains.kotlin.kapt")
     id("org.jetbrains.kotlin.plugin.compose")
+
 }
 
 android {
     namespace = "com.mapovich.bbmystatz"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mapovich.bbmystatz"
-        minSdk = 33
-        targetSdk = 34
+        minSdk = 24
+        targetSdk = 35
         versionCode = 19
         versionName = "0.$versionCode Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    //kapt {
+    //    correctErrorTypes = true
+    //}
+
 
     buildTypes {
         release {
@@ -30,11 +36,21 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+    }
+
+    // Forza il toolchain per TUTTO Kotlin/Java
+    kotlin {
+        jvmToolchain(17)
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
     buildFeatures {
         viewBinding = true
@@ -60,6 +76,10 @@ android {
 }
 
 dependencies {
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    implementation("androidx.hilt:hilt-lifecycle-viewmodel-compose:1.3.0")
+// Usa KSP per Hilt:
+    ksp("com.google.dagger:hilt-compiler:2.57.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
